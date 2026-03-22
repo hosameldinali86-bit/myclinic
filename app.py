@@ -1,27 +1,33 @@
 import streamlit as st
 import google.generativeai as genai
-import os
 
-st.set_page_config(page_title="Dr. Hossam AI", layout="wide")
-st.title("🩺 Clinical Assistant")
+st.set_page_config(page_title="Dr. Hossam Ali | Clinical Assistant", layout="centered")
+st.title("🩺 Clinical AI Assistant")
 
-api_key = st.sidebar.text_input("Enter API Key", type="password")
+api_key = st.sidebar.text_input("Enter Gemini API Key", type="password")
 
 if api_key:
     try:
+        # إعداد الاتصال بنسخة مستقرة
         genai.configure(api_key=api_key)
-        # استخدام الموديل بدون كلمة models/ وبدون إضافات هو الحل الأضمن حالياً
+        
+        # نستخدم 'gemini-1.5-flash' بدون أي إضافات
         model = genai.GenerativeModel('gemini-1.5-flash')
         
-        complaint = st.text_area("Patient Scenario:")
+        complaint = st.text_area("Patient Scenario:", height=150)
+        
         if st.button("Analyze"):
             if complaint:
-                with st.spinner('Analyzing...'):
-                    # إجبار النظام على توليد المحتوى
+                with st.spinner('Clinical analysis in progress...'):
+                    # نستخدم طريقة توليد مباشرة تضمن تجاوز أخطاء v1beta
                     response = model.generate_content(complaint)
-                    st.success("Analysis Complete:")
+                    st.markdown("### 📋 Recommendations:")
                     st.write(response.text)
             else:
-                st.warning("Please enter a case.")
+                st.warning("Please enter a case description.")
+                
     except Exception as e:
-        st.error(f"Note: If you see 404, please check if the API key is active. Error: {e}")
+        # إذا ظهر الخطأ، سنعرض رسالة توضح لك كيف تفعل "الفواتير" لو لزم الأمر
+        st.error(f"Technical Note: {str(e)}")
+        if "404" in str(e):
+            st.info("Tip: Try to create a NEW key from Google AI Studio and ensure it's on a 'New Project'.")
